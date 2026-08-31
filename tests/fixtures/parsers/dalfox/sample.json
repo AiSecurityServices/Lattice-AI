@@ -1,0 +1,1 @@
+[{"type": "V", "data": "http://target.example.com/?q=<svg/onload=alert(1)>", "msg": "Reflected XSS in q", "severity": "HIGH", "evidence": "<svg/onload=alert(1)>"}, {"type": "G", "data": "http://target.example.com/?q=test", "msg": "Grep: phpinfo()", "severity": "INFO", "evidence": "phpinfo()"}]

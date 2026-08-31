@@ -1,0 +1,18 @@
+<nmaprun scanner="nmap" args="nmap -sV -T3 -oX - example.com">
+<hosthint><host><address addr="93.184.216.34" addrtype="ipv4"/></host></hosthint>
+<host>
+  <hostnames><hostname name="example.com"/></hostnames>
+  <address addr="93.184.216.34" addrtype="ipv4"/>
+  <ports>
+    <port protocol="tcp" portid="80"><state state="open"/><service name="http" product="nginx"/></port>
+    <port protocol="tcp" portid="443"><state state="open"/><service name="https"/></port>
+    <port protocol="tcp" portid="22"><state state="closed"/></port>
+  </ports>
+</host>
+<host>
+  <address addr="93.184.216.35" addrtype="ipv4"/>
+  <ports>
+    <port protocol="tcp" portid="8080"><state state="open"/><service name="http-proxy"/></port>
+  </ports>
+</host>
+</nmaprun>

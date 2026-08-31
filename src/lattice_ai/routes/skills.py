@@ -1,0 +1,98 @@
+"""Skill routes (extracted from server.py)."""
+import asyncio
+import hashlib
+import json
+import os
+import queue
+import tempfile
+import threading
+import uuid
+from datetime import datetime
+from pathlib import Path
+
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import Response, StreamingResponse
+from pydantic import BaseModel
+
+from lattice_ai import adapters  # noqa: F401  # registers mcp/http_api tool adapters
+from lattice_ai import runtime as rt
+from lattice_ai.agent import StageAgent, WorkflowAgent
+from lattice_ai.approval import create_pending as approval_create_pending, get_pending as approval_get_pending, resolve_pending as approval_resolve_pending
+from lattice_ai.assistant import AssistantAgent
+from lattice_ai.asset_extractor import extract_assets_from_facts
+from lattice_ai.builtins import install_builtins
+from lattice_ai.capability import capability_of
+from lattice_ai.chat import ChatAgent
+from lattice_ai.danger import add_whitelist, danger_policy_default, evaluate_danger, remove_whitelist
+from lattice_ai.events import EventLog
+from lattice_ai.executor import Executor
+from lattice_ai.generation import generation_done, generation_exists, generation_result, list_generation_events, start_generation
+from lattice_ai.graph import GraphError, validate_template
+from lattice_ai.improve import apply_suggestion
+from lattice_ai.groups import next_group_id
+from lattice_ai.importer import generate_tool_draft
+from lattice_ai.github_asset_importer import preview_asset_import
+from lattice_ai.installer import go_bin_dir, install_toolchain
+from lattice_ai.library import SkillStore, TemplateStore, ToolStore
+from lattice_ai.llm import OpenAICompatibleProvider, list_models
+from lattice_ai.models import Skill, Tool, ToolBinding, Template, from_dict, to_dict
+from lattice_ai.preferences import load_preferences, save_preferences
+from lattice_ai.recipes import load_bundled_recipes, tool_to_yaml, yaml_to_tool
+from lattice_ai.report_export import export_report
+from lattice_ai.run_context import build_run_context
+from lattice_ai.run_diff import diff_runs
+from lattice_ai.run_replay import replay_page
+from lattice_ai.run_state import load_run_state, next_ready, save_run_state
+from lattice_ai.review import generate_findings, generate_report, generate_report_stream, review_workflow, understand_workflow
+from lattice_ai.scope import evaluate_scope, is_restricted_target, scope_configured, scope_policy_from_dict
+from lattice_ai.selfcheck import evolution_report, group_units, self_check_unit
+from lattice_ai.tools import ApprovalDenied, ToolError, ToolRegistry, add_tool_path, find_executable, tool_available, tool_status
+from lattice_ai.tool_import import classify_source, detect_mcp, import_tool_source, list_mcp_tools, map_target_to_args, mcp_tools_to_lattice, parse_command
+
+router = APIRouter()
+
+
+
+
+@router.get("/api/skills")
+def list_skills():
+    return {"skills": rt._skill_store.list()}
+
+
+@router.post("/api/skills")
+def create_skill(body: dict):
+    try:
+        skill = from_dict(Skill, body)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"invalid skill: {exc}") from exc
+    try:
+        skill.name = rt._require_str(skill.name, "name")
+    except HTTPException:
+        raise
+    rt._skill_store.save(skill.name, to_dict(skill))
+    return {"name": skill.name}
+
+
+@router.put("/api/skills/{name}")
+def update_skill(name: str, body: dict):
+    if not any(s["name"] == name for s in rt._skill_store.list()):
+        raise HTTPException(status_code=404, detail="skill not found")
+    skill = from_dict(Skill, body)
+    try:
+        skill.name = rt._require_str(skill.name, "name")
+    except HTTPException:
+        raise
+    if skill.name != name:
+        raise HTTPException(status_code=400, detail="skill name does not match path")
+    rt._skill_store.save(name, to_dict(skill))
+    return {"name": name}
+
+
+@router.delete("/api/skills/{name}")
+def delete_skill(name: str):
+    if not any(s["name"] == name for s in rt._skill_store.list()):
+        raise HTTPException(status_code=404, detail="skill not found")
+    rt._skill_store.delete(name)
+    return {"deleted": name}
+
+

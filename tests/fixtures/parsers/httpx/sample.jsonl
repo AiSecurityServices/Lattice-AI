@@ -1,0 +1,2 @@
+{"url": "https://api.example.com", "status_code": 200, "title": "Example API", "tech": ["Nginx", "React"], "cdn": false, "host": "api.example.com", "port": "443"}
+{"url": "https://staging.example.com", "status_code": 403, "title": "Forbidden", "tech": ["Cloudflare"], "cdn": true, "host": "staging.example.com"}

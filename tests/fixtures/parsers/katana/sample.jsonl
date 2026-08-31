@@ -1,0 +1,3 @@
+{"url": "https://example.com/login", "method": "GET", "source": "input", "tag": "form"}
+{"url": "https://example.com/static/app.js", "method": "GET", "source": "js", "tag": "a"}
+{"url": "https://example.com/api/users", "method": "POST", "source": "robots", "tag": ""}

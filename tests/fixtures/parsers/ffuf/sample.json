@@ -1,0 +1,1 @@
+{"results": [{"url": "https://example.com/admin", "status": 200, "length": 4321, "input": {"FUZZ": "admin"}}, {"url": "https://example.com/backup", "status": 403, "length": 199, "input": {"FUZZ": "backup"}}], "scanner": "ffuf"}

@@ -1,0 +1,2 @@
+{"host": "example.com", "a": ["93.184.216.34"], "ttl": 3600}
+{"host": "www.example.com", "a": ["93.184.216.34"], "ttl": 300}

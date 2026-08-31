@@ -1,0 +1,3 @@
+{"host": "api.example.com", "source": "crt.sh"}
+{"host": "dev.example.com", "source": "hackertarget"}
+# a comment line that is not json

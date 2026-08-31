@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+/data/
+.worktrees/
+src/lattice_ai/web_dist/
+.scratch*/
+
+# local dev / working artifacts (kept out of the public repo)
+.env
+node_modules/
+.DS_Store
+Thumbs.db
+/docs/*
+!/docs/screenshots/
+/e2e-*.png
+/fix-verify-*.png
+/logos/
+.agents/
+.superpowers/
+.playwright-mcp/

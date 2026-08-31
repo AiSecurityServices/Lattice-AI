@@ -1,0 +1,2 @@
+{"template-id": "CVE-2021-44228", "info": {"name": "Apache Log4j RCE", "severity": "critical", "classification": {"cve-id": [{"id": "CVE-2021-44228"}]}}, "matched-at": "http://target.example.com/%24%7Bjndi%3Aldap%3A%2F%2Fx%7D", "type": "http"}
+{"template-id": "exposed-git-dir", "info": {"name": "Git Directory Exposure", "severity": "medium", "classification": {"cve-id": []}}, "matched-at": "http://target.example.com/.git/HEAD", "type": "http"}

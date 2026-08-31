@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Lattice AI">
+  <title>Lattice AI</title>
+  <rect width="64" height="64" rx="14" fill="#17181B"/>
+  <path d="M15 12 h10 v13 h-10 Z" fill="#EAF4FD"/>
+  <path d="M15 31 h10 v10 h21 v10 H15 Z" fill="#EAF4FD"/>
+  <rect x="18" y="25" width="9" height="6" fill="#FF4D6D"/>
+  <rect x="46" y="12" width="8" height="8" fill="#FF4D6D"/>
+  <rect x="11" y="55" width="42" height="2.4" rx="1.2" fill="#63AEEB" opacity="0.8"/>
+  <rect x="34" y="59" width="19" height="1.6" rx="0.8" fill="#FF4D6D" opacity="0.9"/>
+</svg>

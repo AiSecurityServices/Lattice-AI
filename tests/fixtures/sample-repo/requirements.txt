@@ -1,0 +1,2 @@
+# sample dependencies for the repo-audit matrix template
+flask==2.0.0

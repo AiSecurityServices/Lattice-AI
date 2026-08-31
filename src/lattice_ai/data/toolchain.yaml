@@ -1,0 +1,229 @@
+# Lattice AI 第一批真实工具注册表（任务 T-U1）。
+# 字段约束见 toolchain_registry.py 的 RegistryEntry 校验：
+#   - install.primary 一律锁版本，禁止 @latest
+#   - command 占位符只允许 {target}（{wordlist} 在加载时解析为内置词表路径）
+#   - builtin_fallback 对应 install_builtins 里的同名模拟工具；无同名模拟器的工具
+#     （tlsx / gau / waybackurls）缺失可执行文件时不会静默降级
+- name: subfinder
+  category: recon-subdomain
+  output_format: jsonl
+  parse_level: L1
+  command: ["subfinder", "-d", "{target}", "-json", "-silent"]
+  install:
+    primary: "go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@v2.6.7"
+    fallback: release_binary
+  version_cmd: ["subfinder", "-version"]
+  version_regex: "v(\\S+)"
+  license: MIT
+  builtin_fallback: subfinder
+  danger: passive
+  platforms: {windows: go, linux: go}
+  notes: "被动子域枚举，crt.sh 等被动源，不触网扫描目标。"
+
+- name: httpx
+  category: recon-web
+  output_format: jsonl
+  parse_level: L1
+  command: ["httpx", "-u", "{target}", "-json", "-title", "-tech-detect", "-status-code", "-cdn", "-silent"]
+  install:
+    primary: "go install github.com/projectdiscovery/httpx/cmd/httpx@v1.6.9"
+    fallback: release_binary
+  version_cmd: ["httpx", "-version"]
+  version_regex: "v(\\S+)"
+  license: MIT
+  builtin_fallback: httpx
+  danger: passive
+  platforms: {windows: go, linux: go}
+  notes: "HTTP 存活探测 + 标题/技术栈/CDN 识别。"
+
+- name: naabu
+  category: scan-port
+  output_format: jsonl
+  parse_level: L1
+  command: ["naabu", "-host", "{target}", "-json", "-silent", "-scan-type", "connect"]
+  install:
+    primary: "go install github.com/projectdiscovery/naabu/v2/cmd/naabu@v2.3.3"
+    fallback: release_binary
+  version_cmd: ["naabu", "-version"]
+  version_regex: "v(\\S+)"
+  license: MIT
+  builtin_fallback: naabu
+  danger: active
+  platforms: {windows: go, linux: go}
+  notes: "Windows 固定 -scan-type connect（SYN 扫描需要 Npcap）；端口过滤 allow_ports 当前仅作用于内置模拟档。"
+
+- name: nmap
+  category: scan-port
+  output_format: xml
+  parse_level: L3
+  command: ["nmap", "-sV", "-T3", "-oX", "-", "{target}"]
+  install:
+    primary: ""
+    manual: "nmap 需官方安装包（Windows 需同时安装 Npcap）：https://nmap.org/download.html；Linux: apt install nmap"
+  version_cmd: ["nmap", "--version"]
+  version_regex: "Nmap version (\\S+)"
+  license: GPL-2.0
+  builtin_fallback: nmap
+  danger: active
+  platforms: {windows: manual, linux: apt}
+  notes: "GPL 独立二进制分发不传染本项目代码；大目标易超 300s stage 超时，属预期。"
+
+- name: dnsx
+  category: recon-dns
+  output_format: jsonl
+  parse_level: L1
+  command: ["dnsx", "-d", "{target}", "-a", "-resp", "-json", "-silent"]
+  install:
+    primary: "go install github.com/projectdiscovery/dnsx/cmd/dnsx@v1.2.2"
+    fallback: release_binary
+  version_cmd: ["dnsx", "-version"]
+  version_regex: "v(\\S+)"
+  license: MIT
+  builtin_fallback: dnsx
+  danger: passive
+  platforms: {windows: go, linux: go}
+  notes: "DNS A 记录解析。"
+
+- name: tlsx
+  category: recon-tls
+  output_format: jsonl
+  parse_level: L1
+  command: ["tlsx", "-u", "{target}", "-json", "-silent"]
+  install:
+    primary: "go install github.com/projectdiscovery/tlsx/cmd/tlsx@v1.1.7"
+    fallback: release_binary
+  version_cmd: ["tlsx", "-version"]
+  version_regex: "v(\\S+)"
+  license: MIT
+  builtin_fallback: ""
+  danger: passive
+  platforms: {windows: go, linux: go}
+  notes: "TLS 证书信息采集；无同名内置模拟器，缺装时明确报错。"
+
+- name: katana
+  category: crawl
+  output_format: jsonl
+  parse_level: L1
+  command: ["katana", "-u", "{target}", "-jsonl", "-d", "2", "-silent"]
+  install:
+    primary: "go install github.com/projectdiscovery/katana/cmd/katana@v1.1.1"
+    fallback: release_binary
+  version_cmd: ["katana", "-version"]
+  version_regex: "v(\\S+)"
+  license: MIT
+  builtin_fallback: katana
+  danger: active
+  platforms: {windows: go, linux: go}
+  notes: "主动爬虫，深度 2。"
+
+- name: gau
+  category: crawl
+  output_format: text
+  parse_level: L2
+  command: ["gau", "{target}"]
+  install:
+    primary: "go install github.com/lc/gau/v2/cmd/gau@v2.2.4"
+    fallback: release_binary
+  version_cmd: ["gau", "-version"]
+  version_regex: "v(\\S+)"
+  license: MIT
+  builtin_fallback: ""
+  danger: passive
+  platforms: {windows: go, linux: go}
+  notes: "从公共档案（Wayback/Common Crawl/URLScan）拉取已知 URL；无同名内置模拟器。"
+
+- name: waybackurls
+  category: crawl
+  output_format: text
+  parse_level: L2
+  command: ["waybackurls", "{target}"]
+  install:
+    primary: "go install github.com/tomnomnom/waybackurls@v0.1.0"
+    fallback: release_binary
+  version_cmd: ["waybackurls", "-h"]
+  version_regex: "waybackurls"
+  license: MIT
+  builtin_fallback: ""
+  danger: passive
+  platforms: {windows: go, linux: go}
+  notes: "Wayback Machine 已知 URL；无同名内置模拟器。version_cmd 无 -version，命中帮助头即视为可用。"
+
+- name: ffuf
+  category: fuzz
+  output_format: json
+  parse_level: L1
+  command: ["ffuf", "-u", "{target}/FUZZ", "-w", "{wordlist}", "-of", "json", "-o", "-"]
+  install:
+    primary: "go install github.com/ffuf/ffuf/v2@v2.1.0"
+    fallback: release_binary
+  version_cmd: ["ffuf", "-V"]
+  version_regex: "ffuf version: (\\S+)"
+  license: MIT
+  builtin_fallback: ffuf
+  danger: active
+  platforms: {windows: go, linux: go}
+  notes: "{wordlist} 在注册表加载时解析为内置词表 data/wordlists/common.txt；-o - 需 ffuf >= 1.5。"
+
+- name: nuclei
+  category: scan-vuln
+  output_format: jsonl
+  parse_level: L1
+  command: ["nuclei", "-u", "{target}", "-jsonl", "-silent", "-severity", "low,medium,high,critical"]
+  install:
+    primary: "go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@v3.3.9"
+    fallback: release_binary
+  version_cmd: ["nuclei", "-version"]
+  version_regex: "Nuclei Engine Version: v(\\S+)"
+  license: MIT
+  builtin_fallback: nuclei
+  danger: active
+  platforms: {windows: go, linux: go}
+  notes: "首次运行会下载模板到 ~/nuclei-templates（较慢、需网络）；安装器提供 nuclei -ut 可选项。"
+
+- name: dalfox
+  category: scan-vuln
+  output_format: json
+  parse_level: L1
+  command: ["dalfox", "url", "{target}", "--format", "json", "--silence"]
+  install:
+    primary: "go install github.com/hahwul/dalfox/v2@v2.9.2"
+    fallback: release_binary
+  version_cmd: ["dalfox", "version"]
+  version_regex: "v(\\S+)"
+  license: MIT
+  builtin_fallback: dalfox
+  danger: active
+  platforms: {windows: go, linux: go}
+  notes: "XSS 扫描。"
+
+- name: sqlmap
+  category: scan-vuln
+  output_format: text
+  parse_level: L3
+  command: ["sqlmap", "-u", "{target}", "--batch", "--flush-session"]
+  install:
+    primary: "pip install sqlmap"
+  version_cmd: ["sqlmap", "--version"]
+  version_regex: '([0-9]+\.[0-9]+(\.[0-9]+)?)'
+  license: GPL-2.0
+  builtin_fallback: sqlmap
+  danger: aggressive
+  av_sensitive: true
+  platforms: {windows: pip, linux: pip}
+  notes: "AV 警示：sqlmap.py 被多数杀软标记为黑客工具，安装与运行会触发拦截，需放行或加白；版本探测对 av_sensitive 工具自动跳过。输出解析器第二批接入，真实输出暂以 raw 留存并产生 parse_fallback 事件。安装经注册表（pip）驱动；输出解析器在第二批接入，真实输出暂以 raw 留存并产生 parse_fallback 事件，内置模拟档不受影响。注意：部分杀软会拦截 sqlmap.py（渗透测试常用工具的通病），放行后即可正常使用。"
+
+- name: trivy
+  category: repo-audit
+  output_format: json
+  parse_level: L1
+  command: ["trivy", "fs", "--format", "json", "-q", "{target}"]
+  install:
+    primary: "go install github.com/aquasecurity/trivy/cmd/trivy@v0.58.1"
+    fallback: release_binary
+  version_cmd: ["trivy", "--version"]
+  version_regex: "Version: v?(\\S+)"
+  license: Apache-2.0
+  builtin_fallback: ""
+  danger: passive
+  platforms: {windows: go, linux: go}
+  notes: "文件系统依赖扫描（repo-audit 模板）：运行目标即本地仓库/目录路径。占位符用 {target}（执行层 args 白名单；交接文档原拟 {path} 无法被模板绑定填充，见 M2-A 验收文档偏差记录）。go install 对 trivy 官方已不建议，安装失败请按 release_binary 提示手动安装。"

@@ -1,0 +1,2 @@
+https://example.com/index.php?id=1
+http://example.com/backup.zip
